@@ -12,14 +12,13 @@ const sendMessageButton = document.getElementById('sendMessageButton');
 const messageInput = document.getElementById('messageInput');
 const messagesDiv = document.getElementById('messages');
 const sendSOSButton = document.getElementById('sos'); // Get the SOS button
-const survivorsCountElement = document.getElementById('survivors'); // Survivors online section
+const survivorsCount = document.getElementById('survivors'); // Get the survivors count display
 
-let connectedPeers = new Set(); // To keep track of connected peers
+// Initialize map (Leaflet)
+const map = L.map('map').setView([51.505, -0.09], 2); // Default map center
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-// Update the survivors count in the UI
-function updateSurvivorsCount() {
-    survivorsCountElement.textContent = connectedPeers.size;
-}
+let userLocation = null;
 
 // Join the swarm
 try {
@@ -31,10 +30,7 @@ try {
 
     swarm.on('connection', (peer, details) => {
         console.log('Connected to a peer:', details);
-
-        connectedPeers.add(peer); // Add peer to the set
-        updateSurvivorsCount(); // Update the survivors count
-
+        
         // Listen for data from the peer
         peer.on('data', (data) => {
             const message = data.toString();
@@ -45,9 +41,11 @@ try {
         // Handle disconnection
         peer.on('close', () => {
             console.log('Peer disconnected');
-            connectedPeers.delete(peer); // Remove peer from the set
-            updateSurvivorsCount(); // Update the survivors count
+            updateSurvivorsOnlineCount();
         });
+
+        // Update survivors count whenever a new peer connects
+        updateSurvivorsOnlineCount();
     });
 
     // Handle message sending
@@ -62,9 +60,9 @@ try {
         displayMessage(`You: ${message}`);
 
         // Send the message to all connected peers
-        connectedPeers.forEach((peer) => {
+        swarm.connections.forEach((peer) => {
             peer.write(message);
-            console.log('Message sent to peer.');
+            console.log("Message sent to peer.");
         });
 
         // Clear the input field after sending
@@ -73,18 +71,55 @@ try {
 
     // Handle SOS button click
     sendSOSButton.addEventListener('click', () => {
-        const sosMessage = 'IMMEDIATE EMERGENCY !!!'; // The SOS message
+        const sosMessage = "IMMEDIATE EMERGENCY !!!"; // The SOS message
         console.log(`Sending SOS message: ${sosMessage}`);
 
         // Send the SOS message to all connected peers
-        connectedPeers.forEach((peer) => {
+        swarm.connections.forEach((peer) => {
             peer.write(sosMessage);
-            console.log('SOS message sent to peer.');
+            console.log("SOS message sent to peer.");
         });
 
         // Display the SOS message in the sender's UI
         displayMessage(`You: ${sosMessage}`);
     });
+
+    // Handle geolocation functionality for the map
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+            userLocation = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+            };
+
+            // Add user's marker to the map
+            L.marker([userLocation.lat, userLocation.lng]).addTo(map)
+                .bindPopup("You are here!")
+                .openPopup();
+
+            // Update survivor locations on the map
+            swarm.on('connection', (peer, details) => {
+                peer.on('data', (data) => {
+                    const peerLocation = JSON.parse(data.toString());
+                    L.marker([peerLocation.lat, peerLocation.lng]).addTo(map)
+                        .bindPopup(`Peer at: ${peerLocation.lat}, ${peerLocation.lng}`)
+                        .openPopup();
+                });
+            });
+
+            // Broadcast the user's location to peers
+            swarm.connections.forEach((peer) => {
+                peer.write(JSON.stringify(userLocation));
+                console.log('Broadcasted location to peer.');
+            });
+
+        }, (err) => {
+            console.error("Error getting geolocation: ", err);
+        });
+    } else {
+        console.log("Geolocation is not supported by this browser.");
+    }
+
 } catch (err) {
     console.error('Error setting up swarm:', err);
 }
@@ -94,4 +129,10 @@ function displayMessage(message) {
     const messageElement = document.createElement('p');
     messageElement.textContent = message;
     messagesDiv.appendChild(messageElement);
+}
+
+// Function to update the survivors count
+function updateSurvivorsOnlineCount() {
+    const survivorsCountValue = swarm.connections.size;
+    survivorsCount.textContent = survivorsCountValue;
 }

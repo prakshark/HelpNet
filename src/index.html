@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HelpNet</title>
+
+  <!-- Include Leaflet.js CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body>
   <h1>HelpNet: Community Disaster Relief</h1>
@@ -12,19 +15,22 @@
   <input type="text" id="messageInput" placeholder="Type your message here" />
   <button id="sendMessageButton">Send Message</button>
   
-  <!-- New Addition in the code-base V2 -->
-
+  <!-- SOS Button and Survivors Online -->
   <button id="sos">SOS</button>
   <div>
     <h3>Survivors Online: </h3>
     <h3 id="survivors">0</h3>
   </div>
 
-  <!-- End of code addition -->
-
-
   <div id="messages"></div> <!-- Display messages here -->
 
+  <!-- Map container -->
+  <div id="map" style="height: 500px; width: 100%; margin-top: 20px;"></div>
+
+  <!-- Include Leaflet.js JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <!-- Your renderer.js -->
   <script src="renderer.js"></script>
 </body>
 </html>
