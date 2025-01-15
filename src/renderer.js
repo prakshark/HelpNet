@@ -12,6 +12,14 @@ const sendMessageButton = document.getElementById('sendMessageButton');
 const messageInput = document.getElementById('messageInput');
 const messagesDiv = document.getElementById('messages');
 const sendSOSButton = document.getElementById('sos'); // Get the SOS button
+const survivorsCountElement = document.getElementById('survivors'); // Survivors online section
+
+let connectedPeers = new Set(); // To keep track of connected peers
+
+// Update the survivors count in the UI
+function updateSurvivorsCount() {
+    survivorsCountElement.textContent = connectedPeers.size;
+}
 
 // Join the swarm
 try {
@@ -23,7 +31,10 @@ try {
 
     swarm.on('connection', (peer, details) => {
         console.log('Connected to a peer:', details);
-        
+
+        connectedPeers.add(peer); // Add peer to the set
+        updateSurvivorsCount(); // Update the survivors count
+
         // Listen for data from the peer
         peer.on('data', (data) => {
             const message = data.toString();
@@ -34,6 +45,8 @@ try {
         // Handle disconnection
         peer.on('close', () => {
             console.log('Peer disconnected');
+            connectedPeers.delete(peer); // Remove peer from the set
+            updateSurvivorsCount(); // Update the survivors count
         });
     });
 
@@ -49,9 +62,9 @@ try {
         displayMessage(`You: ${message}`);
 
         // Send the message to all connected peers
-        swarm.connections.forEach((peer) => {
+        connectedPeers.forEach((peer) => {
             peer.write(message);
-            console.log("Reached here")
+            console.log('Message sent to peer.');
         });
 
         // Clear the input field after sending
@@ -60,19 +73,18 @@ try {
 
     // Handle SOS button click
     sendSOSButton.addEventListener('click', () => {
-        const sosMessage = "IMMEDIATE EMERGENCY !!!"; // The SOS message
+        const sosMessage = 'IMMEDIATE EMERGENCY !!!'; // The SOS message
         console.log(`Sending SOS message: ${sosMessage}`);
 
         // Send the SOS message to all connected peers
-        swarm.connections.forEach((peer) => {
+        connectedPeers.forEach((peer) => {
             peer.write(sosMessage);
-            console.log("SOS message sent to peer.");
+            console.log('SOS message sent to peer.');
         });
 
         // Display the SOS message in the sender's UI
         displayMessage(`You: ${sosMessage}`);
     });
-
 } catch (err) {
     console.error('Error setting up swarm:', err);
 }
