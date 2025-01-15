@@ -9,9 +9,9 @@ const topic = crypto.createHash('sha256').update('helpnet-p2p').digest();
 
 // Elements in the DOM
 const sendMessageButton = document.getElementById('sendMessageButton');
-
 const messageInput = document.getElementById('messageInput');
 const messagesDiv = document.getElementById('messages');
+const sendSOSButton = document.getElementById('sos'); // Get the SOS button
 
 // Join the swarm
 try {
@@ -57,6 +57,22 @@ try {
         // Clear the input field after sending
         messageInput.value = '';
     });
+
+    // Handle SOS button click
+    sendSOSButton.addEventListener('click', () => {
+        const sosMessage = "IMMEDIATE EMERGENCY !!!"; // The SOS message
+        console.log(`Sending SOS message: ${sosMessage}`);
+
+        // Send the SOS message to all connected peers
+        swarm.connections.forEach((peer) => {
+            peer.write(sosMessage);
+            console.log("SOS message sent to peer.");
+        });
+
+        // Display the SOS message in the sender's UI
+        displayMessage(`You: ${sosMessage}`);
+    });
+
 } catch (err) {
     console.error('Error setting up swarm:', err);
 }
