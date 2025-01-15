@@ -113,6 +113,11 @@ try {
                 L.marker([fallbackLocation.lat, fallbackLocation.lng]).addTo(map)
                     .bindPopup("Noida")
                     .openPopup();
+            },
+            {
+                timeout: 10000, // Set timeout for getting location
+                enableHighAccuracy: true, // Request high accuracy if available
+                maximumAge: 0 // Don't use cached position
             }
         );
     } else {
