@@ -15,7 +15,7 @@ const sendSOSButton = document.getElementById('sos'); // Get the SOS button
 const survivorsCount = document.getElementById('survivors'); // Get the survivors count display
 
 // Initialize map (Leaflet)
-const map = L.map('map').setView([51.505, -0.09], 2); // Default map center
+const map = L.map('map').setView([28.6139, 77.2089], 10); // Default map center to Noida
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
 let userLocation = null;
@@ -86,38 +86,43 @@ try {
 
     // Handle geolocation functionality for the map
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((position) => {
-            userLocation = {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude
-            };
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                userLocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
 
-            // Add user's marker to the map
-            L.marker([userLocation.lat, userLocation.lng]).addTo(map)
-                .bindPopup("You are here!")
-                .openPopup();
+                // Add user's marker to the map
+                L.marker([userLocation.lat, userLocation.lng]).addTo(map)
+                    .bindPopup("You are here!")
+                    .openPopup();
 
-            // Update survivor locations on the map
-            swarm.on('connection', (peer, details) => {
-                peer.on('data', (data) => {
-                    const peerLocation = JSON.parse(data.toString());
-                    L.marker([peerLocation.lat, peerLocation.lng]).addTo(map)
-                        .bindPopup(`Peer at: ${peerLocation.lat}, ${peerLocation.lng}`)
-                        .openPopup();
+                // Broadcast the user's location to peers
+                swarm.connections.forEach((peer) => {
+                    peer.write(JSON.stringify(userLocation));
+                    console.log('Broadcasted location to peer.');
                 });
-            });
 
-            // Broadcast the user's location to peers
-            swarm.connections.forEach((peer) => {
-                peer.write(JSON.stringify(userLocation));
-                console.log('Broadcasted location to peer.');
-            });
-
-        }, (err) => {
-            console.error("Error getting geolocation: ", err);
-        });
+            },
+            (err) => {
+                console.error("Error getting geolocation: ", err);
+                // Fallback to a default location (Noida) if geolocation is unavailable
+                const fallbackLocation = { lat: 28.6139, lng: 77.2089 }; // Default to Noida
+                userLocation = fallbackLocation;
+                L.marker([fallbackLocation.lat, fallbackLocation.lng]).addTo(map)
+                    .bindPopup("Noida")
+                    .openPopup();
+            }
+        );
     } else {
         console.log("Geolocation is not supported by this browser.");
+        // Fallback to default location (Noida)
+        const fallbackLocation = { lat: 28.6139, lng: 77.2089 }; // Default to Noida
+        userLocation = fallbackLocation;
+        L.marker([fallbackLocation.lat, fallbackLocation.lng]).addTo(map)
+            .bindPopup("Noida")
+            .openPopup();
     }
 
 } catch (err) {
