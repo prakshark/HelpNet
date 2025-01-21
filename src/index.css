@@ -57,12 +57,11 @@ button:hover {
 
 /* Messages container */
 #messages {
-    width: 60%; /* Full width */
+    width: 100%; /* Full width */
     height: 100px; /* Fixed height */
     overflow-y: auto; /* Enable scrolling if messages overflow */
     background-color: #1a1a1a; /* Black background for the theme */
     color: #00ff00; /* Neon green text */
-    border: 1px solid #00ff00; /* Neon border */
     border-radius: 5px;
     padding: 10px;
     box-sizing: border-box;
@@ -122,4 +121,40 @@ button:hover {
 
 #survivors{
     padding-left: 20px;
+}
+
+/* Container for Messages and Check-in Safe list */
+#content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 10px; /* Space between the two sections */
+    margin-top: 10px;
+    width: 100%;
+}
+
+/* Messages Section */
+#messagesContainer {
+    flex: 3; /* 60% width */
+    background-color: #1a1a1a; /* Black background for the theme */
+    color: #00ff00; /* Neon green text */
+    border: 1px solid #00ff00; /* Neon border */
+    border-radius: 5px;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    height: 100px; /* Fixed height */
+}
+
+/* Safe List Section */
+#safeListContainer {
+    flex: 2; /* 40% width */
+    background-color: #1a1a1a; /* Black background for the theme */
+    color: #00ff00; /* Neon green text */
+    border: 1px solid #00ff00; /* Neon border */
+    border-radius: 5px;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    height: 100px; /* Match height with messages section */
 }

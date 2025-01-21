@@ -40,14 +40,25 @@
     </div>
 </div>
 
-<ul id="safeList"></ul> 
 
     <!-- Add this to your index.html -->
   <!-- <h3>Share a file:</h3>
   <input type="file" id="fileInput" /> -->
   <!-- <button id="sendFileButton">Send File</button> -->
 
-  <div id="messages"></div> <!-- Display messages here -->
+  <div id="content">
+    <!-- Messages Section -->
+    <div id="messagesContainer">
+      <div id="messages"></div> <!-- Display messages here -->
+    </div>
+  
+    <!-- Safety Status Display -->
+    <div id="safeListContainer">
+      <h4>Checked-in Safe:</h4>
+      <ul id="safeList"></ul> <!-- List of safe users -->
+    </div>
+  </div>
+  
 
   <!-- Map container -->
   <div id="map" style="height: 500px; width: 100%; margin-top: 20px;"></div>
