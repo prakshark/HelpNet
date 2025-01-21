@@ -1,5 +1,7 @@
 const Hyperswarm = require('hyperswarm');
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 
 // Create a new Hyperswarm instance
 const swarm = new Hyperswarm();
@@ -12,6 +14,7 @@ const sendMessageButton = document.getElementById('sendMessageButton');
 const messageInput = document.getElementById('messageInput');
 const messagesDiv = document.getElementById('messages');
 const sendSOSButton = document.getElementById('sos');
+const sendFileButton = document.getElementById('sendFileButton');
 const survivorsCount = document.getElementById('survivors');
 const checkInSafeButton = document.getElementById('checkInSafe');
 const safeList = document.getElementById('safeList');
@@ -85,6 +88,12 @@ try {
                 const safeName = message.substring(5);
                 addSafeUserToList(safeName);
             }
+
+            // Handle file data
+            if (message.startsWith('FILE:')) {
+                const fileData = Buffer.from(message.substring(5), 'base64');
+                saveReceivedFile(fileData, peer);
+            }
         });
 
         peer.on('close', () => {
@@ -112,6 +121,28 @@ try {
 
         swarm.connections.forEach((peer) => peer.write(sosMessage));
         displayMessage(`You: ${sosMessage}`);
+    });
+
+    sendFileButton.addEventListener('click', () => {
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = '*'; // Accept any file type
+        fileInput.click();
+
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                console.log(`Sending file: ${file.name}`);
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const fileData = reader.result;
+                    const fileMessage = `FILE:${fileData.toString('base64')}`;
+                    swarm.connections.forEach((peer) => peer.write(fileMessage));
+                    displayMessage(`You: File sent (${file.name})`);
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        });
     });
 
     checkInSafeButton.addEventListener('click', () => {
@@ -153,19 +184,61 @@ try {
     console.error('Error setting up swarm:', err);
 }
 
+// Function to display messages in the UI
 function displayMessage(message) {
     const messageElement = document.createElement('p');
     messageElement.textContent = message;
     messagesDiv.appendChild(messageElement);
 }
 
+// Function to update the survivors count
 function updateSurvivorsOnlineCount() {
     const survivorsCountValue = swarm.connections.size;
     survivorsCount.textContent = survivorsCountValue;
 }
 
+// Function to add safe user to the list
 function addSafeUserToList(name) {
     const listItem = document.createElement('li');
     listItem.textContent = name;
     safeList.appendChild(listItem);
+}
+
+// Function to save the received file
+function saveReceivedFile(fileData, peer) {
+    const filename = `received_file_${Date.now()}`;
+    const filePath = path.join(__dirname, filename); // Local path where file will be saved
+
+    fs.writeFile(filePath, fileData, (err) => {
+        if (err) {
+            console.error('Error saving file:', err);
+            return;
+        }
+        console.log(`File received and saved: ${filename}`);
+
+        // Display message in the chat
+        displayMessage(`Received a file: ${filename}`);
+
+        // Optionally, create a download link for the file
+        const link = document.createElement('a');
+        link.href = filePath; // Local file path
+        link.download = filename;
+        link.textContent = `Download ${filename}`;
+        messagesDiv.appendChild(link);
+
+        // If it's an image file, display it directly
+        if (isImageFile(filePath)) {
+            const imgElement = document.createElement('img');
+            imgElement.src = filePath;
+            imgElement.alt = 'Received Image';
+            imgElement.style.maxWidth = '300px'; // Limit image size
+            messagesDiv.appendChild(imgElement);
+        }
+    });
+}
+
+// Function to check if the file is an image
+function isImageFile(filePath) {
+    const ext = path.extname(filePath).toLowerCase();
+    return ['.jpg', '.jpeg', '.png', '.gif', '.bmp'].includes(ext);
 }
