@@ -170,15 +170,14 @@ try {
                 console.error('Error getting geolocation:', err);
                 const fallbackLocation = { lat: 28.6139, lng: 77.2089 };
                 userLocation = fallbackLocation;
-                L.marker([fallbackLocation.lat, fallbackLocation.lng]).addTo(map).bindPopup('Default Location').openPopup();
+                L.marker([fallbackLocation.lat, fallbackLocation.lng]).addTo(map).bindPopup('Here').openPopup();
             },
             { timeout: 10000, enableHighAccuracy: true, maximumAge: 0 }
         );
     } else {
-        console.log('Geolocation not supported, using default location.');
         const fallbackLocation = { lat: 28.6139, lng: 77.2089 };
         userLocation = fallbackLocation;
-        L.marker([fallbackLocation.lat, fallbackLocation.lng]).addTo(map).bindPopup('Default Location').openPopup();
+        L.marker([fallbackLocation.lat, fallbackLocation.lng]).addTo(map).bindPopup('Here').openPopup();
     }
 } catch (err) {
     console.error('Error setting up swarm:', err);
@@ -254,3 +253,4 @@ function isImageFile(filePath) {
     const ext = path.extname(filePath).toLowerCase();
     return ['.jpg', '.jpeg', '.png', '.gif', '.bmp'].includes(ext);
 }
+
