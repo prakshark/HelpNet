@@ -185,11 +185,23 @@ try {
 }
 
 // Function to display messages in the UI
+const MAX_MESSAGES = 50; // Limit to 50 messages
+
 function displayMessage(message) {
     const messageElement = document.createElement('p');
     messageElement.textContent = message;
+    const messagesDiv = document.getElementById('messages');
     messagesDiv.appendChild(messageElement);
+
+    // Check if the number of child elements exceeds the maximum
+    while (messagesDiv.childNodes.length > MAX_MESSAGES) {
+        messagesDiv.removeChild(messagesDiv.firstChild); // Remove the oldest message
+    }
+
+    // Scroll to the bottom to show the latest message
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
+
 
 // Function to update the survivors count
 function updateSurvivorsOnlineCount() {

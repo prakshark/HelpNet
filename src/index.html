@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HelpNet</title>
+  <link rel="stylesheet" href="index.css">
 
   <!-- Include Leaflet.js CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
@@ -13,27 +14,38 @@
 
   <!-- Input field to type messages -->
   <input type="text" id="messageInput" placeholder="Type your message here" />
-  <button id="sendMessageButton">Send Message</button>
-  
-  <!-- SOS Button and Survivors Online -->
-  <button id="sos">SOS</button>
+  <div class="buttons-container">
+    <button id="sendMessageButton">Send Message</button>
+    <button id="sos">SOS</button>
+    <button id="sendFileButton">Send File</button>
+  </div>
 
     <!-- Add a section for Check-in Safe -->
-  <div>
+  <!-- <div>
     <h3>Check-in Safe:</h3>
     <button id="checkInSafe">Check-in</button>
   </div>
-  <ul id="safeList"></ul> <!-- Display the list of safe users -->
+  <ul id="safeList"></ul> 
 
   <div>
     <h3>Survivors Online: </h3>
     <h3 id="survivors">0</h3>
-  </div>
+  </div> -->
+
+  <div class="status-container">
+    <button id="checkInSafe">Check-in Safe</button>
+    <div>
+        <h3>Survivors Online: </h3>
+        <h3 id="survivors">0</h3>
+    </div>
+</div>
+
+<ul id="safeList"></ul> 
 
     <!-- Add this to your index.html -->
   <!-- <h3>Share a file:</h3>
   <input type="file" id="fileInput" /> -->
-  <button id="sendFileButton">Send File</button>
+  <!-- <button id="sendFileButton">Send File</button> -->
 
   <div id="messages"></div> <!-- Display messages here -->
 
